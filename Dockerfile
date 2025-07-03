@@ -22,3 +22,7 @@ EXPOSE 3000
 
 # 启动命令
 CMD ["node", "src/app.js"]
+
+# 可选：暴露定时任务命令，便于云托管定时触发器调用
+# 例如：CMD ["npm", "run", "aggregate-user-stats"]
+# 但主服务仍用 node src/app.js 启动
