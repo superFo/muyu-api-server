@@ -20,10 +20,7 @@ const db = knex({
     password: process.env.MYSQL_PASSWORD || '',
     database: process.env.MYSQL_DATABASE || process.env.DB_NAME,
     port: port,
-    ssl: {
-      minVersion: 'TLSv1.2',
-      rejectUnauthorized: true
-    }
+    ssl: false // 明确禁用 SSL，兼容不支持加密连接的 MySQL 实例
   }
 });
 
