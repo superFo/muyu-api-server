@@ -11,6 +11,9 @@ COPY pnpm-lock.yaml* ./
 # 安装依赖
 RUN npm install --production
 
+# 关键：创建 cert 目录，防止云托管 CA 注入失败
+RUN mkdir -p /app/cert
+
 # 复制全部代码
 COPY . .
 
@@ -18,4 +21,4 @@ COPY . .
 EXPOSE 3000
 
 # 启动命令
-CMD ["node", "src/app.js"] 
+CMD ["node", "src/app.js"]
