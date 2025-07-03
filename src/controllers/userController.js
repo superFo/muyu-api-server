@@ -10,7 +10,10 @@ async function getOpenIdFromWeixin(code) {
   const url = `https://api.weixin.qq.com/sns/jscode2session?appid=${WECHAT_APPID}&secret=${WECHAT_SECRET}&js_code=${code}&grant_type=authorization_code`;
   const res = await fetch(url);
   const data = await res.json();
-  if (!data.openid) throw new Error('获取 openid 失败');
+  if (!data.openid) {
+    console.error('微信接口返回:', data);
+    throw new Error('获取 openid 失败: ' + JSON.stringify(data));
+  }
   return data.openid;
 }
 
