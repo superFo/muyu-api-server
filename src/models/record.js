@@ -25,7 +25,7 @@ export async function getRecordsByOpenId(open_id, { page = 1, pageSize = 10, dat
   return { total: Number(count), list };
 }
 
-export async function getRankingByType(type = 'total', limit = 100) {
+export async function getRankingByType(type = 'total', limit = 100, openIds = null) {
   const now = new Date();
   let start;
   if (type === 'today') {
@@ -37,6 +37,9 @@ export async function getRankingByType(type = 'total', limit = 100) {
   const query = db('records');
   if (type === 'today' || type === 'week') {
     query.where('timestamp', '>=', start);
+  }
+  if (openIds && Array.isArray(openIds) && openIds.length > 0) {
+    query.whereIn('open_id', openIds);
   }
   return query
     .select('open_id')
