@@ -1,3 +1,4 @@
+process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 import express from 'express';
 import userRoutes from './routes/userRoutes.js';
 import recordRoutes from './routes/recordRoutes.js';
