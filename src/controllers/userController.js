@@ -1,6 +1,6 @@
 import fetch from 'node-fetch';
 import jwt from 'jsonwebtoken';
-import { findByOpenId, createUser, updateUserInfo } from '../models/user.js';
+import { findByOpenId, createUser, updateUserInfo as updateUserInfoModel } from '../models/user.js';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'muyu_secret';
 const WECHAT_APPID = process.env.WECHAT_APPID || '';
@@ -74,7 +74,7 @@ export async function login(req, res) {
     await createUser(user);
     console.log(`${logTag} 新建用户:`, user);
   } else {
-    await updateUserInfo(open_id, { nickname, avatar });
+    await updateUserInfoModel(open_id, { nickname, avatar });
     user = await findByOpenId(open_id);
     console.log(`${logTag} 已有用户，更新后:`, user);
   }
@@ -84,7 +84,13 @@ export async function login(req, res) {
 }
 // ... existing code ...
 
-
+export async function updateUserInfo(req, res) {
+  const open_id = req.user?.open_id;
+  if (!open_id) return res.json({ code: 401, data: null, message: '未登录' });
+  const { avatar, nickname } = req.body;
+  await updateUserInfoModel(open_id, { avatar, nickname });
+  res.json({ code: 0, data: null, message: '更新成功' });
+}
 
 export async function getMe(req, res) {
   const open_id = req.user?.open_id;
