@@ -103,4 +103,21 @@ export async function getMe(req, res) {
   const user = await findByOpenId(open_id);
   if (!user) return res.json({ code: 404, data: null, message: '用户不存在' });
   res.json({ code: 0, data: user, message: 'success' });
+}
+
+export async function queryByCode(req, res) {
+  const { code } = req.body;
+  if (!code) return res.json({ code: 400, data: null, message: '缺少 code' });
+  let open_id;
+  try {
+    open_id = await getOpenIdFromWeixin(code);
+  } catch (e) {
+    return res.json({ code: 400, data: null, message: 'code 无效' });
+  }
+  const user = await findByOpenId(open_id);
+  if (user) {
+    res.json({ code: 0, data: user, message: 'success' });
+  } else {
+    res.json({ code: 0, data: null, message: 'not found' });
+  }
 } 
