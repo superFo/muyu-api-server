@@ -11,6 +11,9 @@ COPY pnpm-lock.yaml* ./
 # 安装依赖
 RUN npm install --production
 
+# 安装 CA 根证书，解决 Node.js 访问微信接口时的证书校验问题
+RUN apt-get update && apt-get install -y ca-certificates
+
 # 关键：创建 cert 目录，防止云托管 CA 注入失败
 RUN mkdir -p /app/cert
 
