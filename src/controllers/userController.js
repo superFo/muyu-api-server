@@ -87,7 +87,12 @@ export async function login(req, res) {
 export async function updateUserInfo(req, res) {
   const open_id = req.user?.open_id;
   if (!open_id) return res.json({ code: 401, data: null, message: '未登录' });
-  const { avatar, nickname } = req.body;
+  let { avatar, nickname } = req.body;
+  // 自动转换 fileID 为 HTTPS 公网链接
+  const COS_DOMAIN = 'https://7072-prod-2gxlvind87f18af8-1366437278.tcb.qcloud.la';
+  if (avatar && avatar.startsWith('cloud://')) {
+    avatar = COS_DOMAIN + avatar.replace(/^cloud:\/\/[^/]+/, '');
+  }
   await updateUserInfoModel(open_id, { avatar, nickname });
   res.json({ code: 0, data: null, message: '更新成功' });
 }
