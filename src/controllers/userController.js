@@ -70,7 +70,11 @@ export async function login(req, res) {
 
   let user = await findByOpenId(open_id);
   if (!user) {
-    user = { open_id, nickname: nickname || '', avatar: avatar || '', role: 'user' };
+    // 新用户必须自定义上传头像和昵称，否则不允许注册
+    if (!nickname || !avatar) {
+      return res.json({ code: 400, data: null, message: '请上传头像和昵称' });
+    }
+    user = { open_id, nickname, avatar, role: 'user' };
     await createUser(user);
     console.log(`${logTag} 新建用户:`, user);
   } else {
