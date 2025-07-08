@@ -81,6 +81,10 @@ export async function login(req, res) {
     await updateUserInfoModel(open_id, { nickname, avatar });
     user = await findByOpenId(open_id);
     console.log(`${logTag} 已有用户，更新后:`, user);
+    // 老用户如果nickname为“微信用户”或avatar为空，也强制前端弹窗
+    if (!user.avatar || user.nickname === '微信用户') {
+      return res.json({ code: 400, data: null, message: '请上传头像和昵称' });
+    }
   }
   // 保证nickname和avatar有值
   user.nickname = user.nickname && user.nickname.trim() ? user.nickname : '木鱼用户';
