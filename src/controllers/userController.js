@@ -78,6 +78,9 @@ export async function login(req, res) {
     user = await findByOpenId(open_id);
     console.log(`${logTag} 已有用户，更新后:`, user);
   }
+  // 保证nickname和avatar有值
+  user.nickname = user.nickname && user.nickname.trim() ? user.nickname : '木鱼用户';
+  user.avatar = user.avatar && user.avatar.trim() ? user.avatar : '/assets/default-avatar.png';
   const token = jwt.sign({ open_id }, JWT_SECRET, { expiresIn: '7d' });
   console.log(`${logTag} 签发 token 成功:`, token ? 'yes' : 'no');
   res.json({ code: 0, data: { token, userInfo: user }, message: 'success' });
@@ -102,6 +105,9 @@ export async function getMe(req, res) {
   if (!open_id) return res.json({ code: 401, data: null, message: '未登录' });
   const user = await findByOpenId(open_id);
   if (!user) return res.json({ code: 404, data: null, message: '用户不存在' });
+  // 保证nickname和avatar有值
+  user.nickname = user.nickname && user.nickname.trim() ? user.nickname : '木鱼用户';
+  user.avatar = user.avatar && user.avatar.trim() ? user.avatar : '/assets/default-avatar.png';
   res.json({ code: 0, data: user, message: 'success' });
 }
 
@@ -116,6 +122,9 @@ export async function queryByCode(req, res) {
   }
   const user = await findByOpenId(open_id);
   if (user) {
+    // 保证nickname和avatar有值
+    user.nickname = user.nickname && user.nickname.trim() ? user.nickname : '木鱼用户';
+    user.avatar = user.avatar && user.avatar.trim() ? user.avatar : '/assets/default-avatar.png';
     res.json({ code: 0, data: user, message: 'success' });
   } else {
     res.json({ code: 0, data: null, message: 'not found' });
