@@ -39,7 +39,6 @@ export async function login(req, res) {
   console.log(`${logTag} 当前登录模式:`, mode);
 
   if (mode === 'cloudbase') {
-    // 微信云托管免鉴权模式
     open_id = req.headers['x-wx-openid'];
     logTag += '[免鉴权]';
     console.log(`${logTag} 从请求头获取 openid:`, open_id);
@@ -48,7 +47,6 @@ export async function login(req, res) {
       return res.json({ code: 401, data: null, message: '未获取到 openid，请确认已在微信云托管环境下调用' });
     }
   } else {
-    // 传统 code2Session 模式
     const { code } = req.body;
     logTag += '[code2Session]';
     console.log(`${logTag} 收到 code:`, code);
@@ -78,9 +76,18 @@ export async function login(req, res) {
     await createUser(user);
     console.log(`${logTag} 新建用户:`, user);
   } else {
-    await updateUserInfoModel(open_id, { nickname, avatar });
+    // 只在数据库缺失昵称/头像时才用微信数据覆盖
+    const updateData = {};
+    if (!user.nickname || user.nickname === '微信用户') {
+      if (nickname && nickname !== '微信用户') updateData.nickname = nickname;
+    }
+    if (!user.avatar) {
+      if (avatar) updateData.avatar = avatar;
+    }
+    if (Object.keys(updateData).length > 0) {
+      await updateUserInfoModel(open_id, updateData);
+    }
     user = await findByOpenId(open_id);
-    console.log(`${logTag} 已有用户，更新后:`, user);
     // 老用户如果nickname为“微信用户”或avatar为空，也强制前端弹窗
     if (!user.avatar || user.nickname === '微信用户') {
       return res.json({ code: 400, data: null, message: '请上传头像和昵称' });
