@@ -11,6 +11,13 @@ COPY pnpm-lock.yaml* ./
 # 安装依赖
 RUN npm install --production
 
+# 时区增加
+ENV TZ=Asia/Shanghai \
+    DEBIAN_FRONTEND=noninteractive
+
+RUN ln -fs /usr/share/zoneinfo/${TZ} /etc/localtime && echo ${TZ} > /etc/timezone && dpkg-reconfigure --frontend noninteractive tzdata && rm -rf /var/lib/apt/lists/*
+
+
 # 安装 CA 根证书，解决 Node.js 访问微信接口时的证书校验问题
 RUN apt-get update && apt-get install -y ca-certificates
 
