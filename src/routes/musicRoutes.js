@@ -1,8 +1,8 @@
-import Router from 'koa-router';
+import express from 'express';
 import { getMusicList, getMyMusic, exchangeMusic } from '../controllers/musicController.js';
 import auth from '../middlewares/auth.js';
 
-const router = new Router({ prefix: '/music' });
+const router = express.Router();
 
 router.use(auth);
 
