@@ -4,24 +4,22 @@ export async function createRecord(record) {
   return db('records').insert(record);
 }
 
-export async function getRecordsByOpenId(open_id, { page = 1, pageSize = 10, date } = {}) {
-  const query = db('records').where({ open_id });
-  if (date) {
-    // date 格式假定为 'YYYY-MM-DD'
-    const start = date + ' 00:00:00';
-    const end = date + ' 23:59:59';
-    query.andWhere('timestamp', '>=', start).andWhere('timestamp', '<=', end);
-  }
-  const list = await query
-    .orderBy('timestamp', 'desc')
+export async function getRecordsByOpenId(open_id, { page = 1, pageSize = 10 } = {}) {
+  // 联查 user_music 和 music 表，返回 music_name
+  const list = await db('user_music as um')
+    .leftJoin('music as m', 'um.music_id', 'm.id')
+    .where('um.open_id', open_id)
+    .select(
+      'um.id',
+      'um.music_id',
+      'um.exchanged_at',
+      'm.name as music_name'
+    )
+    .orderBy('um.exchanged_at', 'desc')
     .limit(pageSize)
     .offset((page - 1) * pageSize);
-  // 统计总数
-  const countQuery = db('records').where({ open_id });
-  if (date) {
-    countQuery.andWhere('timestamp', '>=', start).andWhere('timestamp', '<=', end);
-  }
-  const [{ count }] = await countQuery.count({ count: '*' });
+
+  const [{ count }] = await db('user_music').where({ open_id }).count({ count: '*' });
   return { total: Number(count), list };
 }
 
