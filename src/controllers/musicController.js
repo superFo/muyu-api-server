@@ -74,7 +74,12 @@ export async function exchangeMusic(req, res) {
       }
 
       // 兑换
-      await trx('user_music').insert({ open_id, music_id, exchanged_at: new Date().toISOString() });
+      function formatDateToMySQL(dt) {
+        const date = new Date(dt);
+        const pad = n => n < 10 ? '0' + n : n;
+        return `${date.getFullYear()}-${pad(date.getMonth()+1)}-${pad(date.getDate())} ${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}`;
+      }
+      await trx('user_music').insert({ open_id, music_id, exchanged_at: formatDateToMySQL(new Date()) });
     });
     res.json({ code: 0, message: '兑换成功' });
   } catch (err) {
