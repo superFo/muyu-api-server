@@ -51,33 +51,28 @@ export async function exchangeMusic(req, res) {
     await db.transaction(async trx => {
       // 查找音乐
       const music = await trx('music').where({ id: music_id }).first();
-      if (!music) {
-        throw new Error('音乐不存在');
-      }
-      if (music.is_default) {
-        throw new Error('默认音乐无需兑换');
-      }
+      if (!music) throw new Error('音乐不存在');
+      if (music.is_default) throw new Error('默认音乐无需兑换');
+
       // 是否已兑换
       const owned = await trx('user_music').where({ open_id, music_id }).first();
-      if (owned) {
-        throw new Error('已兑换该音乐');
-      }
+      if (owned) throw new Error('已兑换该音乐');
+
       // 获取用户信息
       const user = await trx('users').where({ open_id }).first();
-      if (!user) {
-        throw new Error('用户不存在');
-      }
-      // 计算已消耗额度
-      const userMusic = await trx('user_music').where({ open_id });
-      const allMusic = await trx('music');
-      const used = userMusic.reduce((sum, m) => {
-        const found = allMusic.find(item => item.id === m.music_id);
-        return sum + (found ? found.required_hits : 0);
-      }, 0);
+      if (!user) throw new Error('用户不存在');
+
+      // SQL 聚合已消耗额度
+      const [{ used = 0 }] = await trx('user_music as um')
+        .join('music as m', 'um.music_id', 'm.id')
+        .where('um.open_id', open_id)
+        .sum({ used: 'm.required_hits' });
+
       const available = user.month_count - used;
       if (available < music.required_hits) {
         throw new Error('本月敲击次数不足，无法兑换该音乐');
       }
+
       // 兑换
       await trx('user_music').insert({ open_id, music_id, exchanged_at: new Date().toISOString() });
     });

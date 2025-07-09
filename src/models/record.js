@@ -73,4 +73,34 @@ export async function getUserStatsByOpenId(open_id) {
     weekCount: Number(weekCount),
     totalCount: Number(totalCount)
   };
+}
+
+export async function getUserStatsWithAvailableHits(open_id) {
+  const now = new Date();
+  const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const day = now.getDay() || 7;
+  const weekStart = new Date(now.getFullYear(), now.getMonth(), now.getDate() - day + 1);
+
+  // records表统计
+  const [{ todayCount }] = await db('records')
+    .where({ open_id })
+    .andWhere('timestamp', '>=', todayStart)
+    .count({ todayCount: '*' });
+  const [{ weekCount }] = await db('records')
+    .where({ open_id })
+    .andWhere('timestamp', '>=', weekStart)
+    .count({ weekCount: '*' });
+  const [{ totalCount }] = await db('records')
+    .where({ open_id })
+    .count({ totalCount: '*' });
+
+  // users表聚合
+  const user = await db('users').where({ open_id }).first();
+  return {
+    todayCount: Number(todayCount),
+    weekCount: Number(weekCount),
+    totalCount: Number(totalCount),
+    monthCount: user?.month_count || 0,
+    availableHits: user?.available_hits || 0
+  };
 } 
