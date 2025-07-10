@@ -5,14 +5,14 @@ export async function createRecord(record) {
 }
 
 export async function getRecordsByOpenId(open_id, { page = 1, pageSize = 10 } = {}) {
-  // 联查 user_music 和 music 表，返回 music_name
+  // 联查 user_music 和 music 表，exchanged_at 用 DATE_FORMAT 保证为字符串
   const list = await db('user_music as um')
     .leftJoin('music as m', 'um.music_id', 'm.id')
     .where('um.open_id', open_id)
     .select(
       'um.id',
       'um.music_id',
-      'um.exchanged_at',
+      db.raw("DATE_FORMAT(um.exchanged_at, '%Y-%m-%d %H:%i:%s') as exchanged_at"),
       'm.name as music_name'
     )
     .orderBy('um.exchanged_at', 'desc')
