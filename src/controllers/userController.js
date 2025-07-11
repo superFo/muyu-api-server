@@ -2,7 +2,7 @@ import fetch from 'node-fetch';
 import jwt from 'jsonwebtoken';
 import { findByOpenId, createUser, updateUserInfo as updateUserInfoModel } from '../models/user.js';
 
-const JWT_SECRET = process.env.JWT_SECRET || 'muyu_secret';
+const JWT_SECRET = process.env.JWT_SECRET || 'muyu_secret_new_2024'; // 修改密钥强制重新登录
 const WECHAT_APPID = process.env.WECHAT_APPID || '';
 const WECHAT_SECRET = process.env.WECHAT_SECRET || '';
 
