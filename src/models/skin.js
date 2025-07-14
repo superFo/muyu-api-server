@@ -10,12 +10,19 @@ export async function getUserSkinIds(open_id) {
   return db('user_skins').where({ open_id }).pluck('skin_id');
 }
 
-// 获取用户拥有的皮肤详细信息
+// 获取用户拥有的皮肤详细信息，字段类型转换为数字
 export async function getUserSkins(open_id) {
-  return db('user_skins')
+  const rows = await db('user_skins')
     .join('skins', 'user_skins.skin_id', 'skins.id')
     .where('user_skins.open_id', open_id)
     .select('skins.*', 'user_skins.obtained_at');
+  // 类型转换，防止前端渲染异常
+  return rows.map(row => ({
+    ...row,
+    id: Number(row.id),
+    is_hidden: Number(row.is_hidden),
+    skin_id: row.skin_id ? Number(row.skin_id) : undefined
+  }));
 }
 
 // 用户获得新皮肤
