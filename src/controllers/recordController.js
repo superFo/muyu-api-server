@@ -15,21 +15,25 @@ export async function createRecord(req, res) {
   const result = await dbCreateRecord({ open_id, timestamp: formattedTimestamp, device, city, longitude, latitude });
   // 皮肤掉落逻辑
   let skinDrop = null;
-  if (Math.random() < 0.9) { // 90%概率（调试用）
-    // 查询所有隐藏皮肤
+  console.log('[皮肤掉落] 开始判定');
+  if (Math.random() < 0.99) { // 90%概率（调试用）
     const allSkins = await getAllSkins();
     const hiddenSkins = allSkins.filter(s => s.is_hidden);
+    console.log('[皮肤掉落] 隐藏皮肤列表:', hiddenSkins);
     if (hiddenSkins.length > 0) {
-      // 随机选一个隐藏皮肤
       const skin = hiddenSkins[Math.floor(Math.random() * hiddenSkins.length)];
-      // 查询用户已拥有皮肤
       const userSkinIds = await getUserSkinIds(open_id);
+      console.log('[皮肤掉落] 用户已有皮肤ID:', userSkinIds, '本次掉落皮肤ID:', skin.id);
       if (!userSkinIds.includes(skin.id)) {
         await addUserSkin(open_id, skin.id);
         skinDrop = skin;
+        console.log('[皮肤掉落] 掉落成功:', skin);
+      } else {
+        console.log('[皮肤掉落] 用户已拥有该皮肤');
       }
     }
   }
+  console.log('[皮肤掉落] 最终skinDrop:', skinDrop);
   const recordId = Array.isArray(result) ? result[0] : null;
   res.json({ code: 0, data: { recordId, skinDrop }, message: 'success' });
 }
