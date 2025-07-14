@@ -10,10 +10,11 @@ import musicRoutes from './routes/musicRoutes.js';
 const app = express();
 app.use(express.json());
 
-// 登录接口限流（按IP）
+// 登录接口限流（按 openid）
 const loginLimiter = rateLimit({
   windowMs: 60 * 1000, // 1分钟
   max: 5,
+  keyGenerator: req => req.user?.open_id || req.ip,
   message: { code: 429, message: '操作过于频繁，请稍后再试' }
 });
 // 敲击接口限流（按用户）
