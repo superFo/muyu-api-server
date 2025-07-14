@@ -1,4 +1,5 @@
 import { createRecord as dbCreateRecord, getRecordsByOpenId } from '../models/record.js';
+import { getAllSkins, getUserSkinIds, addUserSkin } from '../models/skin.js';
 
 function formatDateToMySQL(dt) {
   const date = new Date(dt);
@@ -12,9 +13,25 @@ export async function createRecord(req, res) {
   const { timestamp, device, city, longitude, latitude } = req.body;
   const formattedTimestamp = formatDateToMySQL(timestamp);
   const result = await dbCreateRecord({ open_id, timestamp: formattedTimestamp, device, city, longitude, latitude });
-  // knex insert 返回 [id]
+  // 皮肤掉落逻辑
+  let skinDrop = null;
+  if (Math.random() < 0.9) { // 90%概率（调试用）
+    // 查询所有隐藏皮肤
+    const allSkins = await getAllSkins();
+    const hiddenSkins = allSkins.filter(s => s.is_hidden);
+    if (hiddenSkins.length > 0) {
+      // 随机选一个隐藏皮肤
+      const skin = hiddenSkins[Math.floor(Math.random() * hiddenSkins.length)];
+      // 查询用户已拥有皮肤
+      const userSkinIds = await getUserSkinIds(open_id);
+      if (!userSkinIds.includes(skin.id)) {
+        await addUserSkin(open_id, skin.id);
+        skinDrop = skin;
+      }
+    }
+  }
   const recordId = Array.isArray(result) ? result[0] : null;
-  res.json({ code: 0, data: { recordId }, message: 'success' });
+  res.json({ code: 0, data: { recordId, skinDrop }, message: 'success' });
 }
 
 export async function getRecords(req, res) {

@@ -1,6 +1,7 @@
 import fetch from 'node-fetch';
 import jwt from 'jsonwebtoken';
 import { findByOpenId, createUser, updateUserInfo as updateUserInfoModel } from '../models/user.js';
+import { getUserSkins, getUserCurrentSkin, setUserCurrentSkin } from '../models/skin.js';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'muyu_secret_new_2024'; // 修改密钥强制重新登录
 const WECHAT_APPID = process.env.WECHAT_APPID || '';
@@ -144,4 +145,23 @@ export async function queryByCode(req, res) {
   } else {
     res.json({ code: 0, data: null, message: 'not found' });
   }
+}
+
+// 获取用户皮肤列表及当前皮肤
+export async function getUserSkinsController(req, res) {
+  const open_id = req.user?.open_id;
+  if (!open_id) return res.json({ code: 401, data: null, message: '未登录' });
+  const skins = await getUserSkins(open_id);
+  const currentSkinId = await getUserCurrentSkin(open_id);
+  res.json({ code: 0, data: { skins, currentSkinId }, message: 'success' });
+}
+
+// 设置当前皮肤
+export async function setUserCurrentSkinController(req, res) {
+  const open_id = req.user?.open_id;
+  if (!open_id) return res.json({ code: 401, data: null, message: '未登录' });
+  const { skin_id } = req.body;
+  if (!skin_id) return res.json({ code: 400, data: null, message: '缺少皮肤ID' });
+  await setUserCurrentSkin(open_id, skin_id);
+  res.json({ code: 0, data: null, message: '皮肤已切换' });
 } 
