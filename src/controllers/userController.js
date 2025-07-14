@@ -164,7 +164,10 @@ export async function setUserCurrentSkinController(req, res) {
   const open_id = req.user?.open_id;
   if (!open_id) return res.json({ code: 401, data: null, message: '未登录' });
   const { skin_id } = req.body;
-  if (!skin_id) return res.json({ code: 400, data: null, message: '缺少皮肤ID' });
+  // 只在 undefined 或 null 时报错，允许 0 作为默认皮肤
+  if (skin_id === undefined || skin_id === null) {
+    return res.json({ code: 400, data: null, message: '缺少皮肤ID' });
+  }
   await setUserCurrentSkin(open_id, skin_id);
   res.json({ code: 0, data: null, message: '皮肤已切换' });
 } 
