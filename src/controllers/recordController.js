@@ -16,7 +16,7 @@ export async function createRecord(req, res) {
   // 皮肤掉落逻辑
   let skinDrop = null;
   console.log('[皮肤掉落] 开始判定');
-  if (Math.random() < 0.4) { // 40%概率
+  if (Math.random() < 0.2) { // 40%概率
     const allSkins = await getAllSkins();
     const hiddenSkins = allSkins.filter(s => s.is_hidden);
     console.log('[皮肤掉落] 隐藏皮肤列表:', hiddenSkins);
