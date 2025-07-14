@@ -27,7 +27,7 @@ const recordLimiter = rateLimit({
 // 其他接口限流（按用户）
 const generalLimiter = rateLimit({
   windowMs: 60 * 1000,
-  max: 20,
+  max: 100,
   keyGenerator: req => req.user?.open_id || req.ip,
   message: { code: 429, message: '请求过于频繁，请稍后再试' }
 });
