@@ -20,7 +20,7 @@ const loginLimiter = rateLimit({
 // 敲击接口限流（按用户）
 const recordLimiter = rateLimit({
   windowMs: 60 * 1000,
-  max: 60,
+  max: 100,
   keyGenerator: req => req.user?.open_id || req.ip,
   message: { code: 429, message: '敲击过快，请稍后再试' }
 });
