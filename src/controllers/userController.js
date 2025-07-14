@@ -153,6 +153,9 @@ export async function getUserSkinsController(req, res) {
   if (!open_id) return res.json({ code: 401, data: null, message: '未登录' });
   const skins = await getUserSkins(open_id);
   const currentSkinId = await getUserCurrentSkin(open_id);
+  console.log('[用户皮肤] open_id:', open_id);
+  console.log('[用户皮肤] 查询到的皮肤列表:', skins);
+  console.log('[用户皮肤] 当前皮肤ID:', currentSkinId);
   res.json({ code: 0, data: { skins, currentSkinId }, message: 'success' });
 }
 
