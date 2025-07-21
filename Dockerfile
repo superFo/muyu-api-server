@@ -10,6 +10,7 @@ COPY pnpm-lock.yaml* ./
 
 # 安装依赖
 RUN npm install --production
+RUN npm install axios
 
 # 时区增加
 ENV TZ=Asia/Shanghai \

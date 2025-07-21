@@ -6,6 +6,7 @@ import recordRoutes from './routes/recordRoutes.js';
 import rankingRoutes from './routes/rankingRoutes.js';
 import statsRoutes from './routes/statsRoutes.js';
 import musicRoutes from './routes/musicRoutes.js';
+const fortuneRoutes = require('./routes/fortuneRoutes');
 
 const app = express();
 app.use(express.json());
@@ -44,6 +45,7 @@ app.use('/records', recordRoutes);
 app.use('/rankings', rankingRoutes);
 app.use('/stats', statsRoutes);
 app.use('/music', musicRoutes);
+app.use('/fortune', fortuneRoutes);
 
 app.get('/', (req, res) => {
   res.json({ code: 0, data: 'ok', message: 'API running' });
