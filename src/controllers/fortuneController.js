@@ -5,13 +5,30 @@ import dayjs from 'dayjs';
 export async function today(req, res, next) {
   try {
     const user = req.user;
-    console.log('[fortune/today] user:', user);
-    const data = await todayFortune(user);
-    console.log('[fortune/today] success:', data);
-    res.json({ code: 0, data, message: 'success' });
+    const openId = user.open_id;
+    const todayStr = dayjs().format('YYYY-MM-DD');
+    // 1. 查缓存表
+    let [cache] = await db('fortune_cache').where({ open_id: openId, date: todayStr }).select('fortune_json');
+    if (cache && cache.fortune_json) {
+      return res.json(JSON.parse(cache.fortune_json));
+    }
+    // 2. 查用户生日
+    let [dbUser] = await db('users').where({ open_id: openId }).select('birth_year', 'birth_month', 'birth_day');
+    let hasBirth = dbUser && dbUser.birth_year && dbUser.birth_month && dbUser.birth_day;
+    // 3. 生成运势
+    let fortune;
+    if (hasBirth) {
+      fortune = await todayFortune({ ...user, birth_year: dbUser.birth_year, birth_month: dbUser.birth_month, birth_day: dbUser.birth_day });
+      // 4. 写入缓存
+      await db('fortune_cache').insert({ open_id: openId, date: todayStr, fortune_json: JSON.stringify(fortune) });
+    } else {
+      // 未填写生日，随机生成但不写入缓存
+      fortune = await todayFortune({ ...user, random: true });
+    }
+    res.json(fortune);
   } catch (err) {
     console.error('[fortune/today] error:', err);
-    next(err);
+    res.status(500).json({ code: 500, message: err.message || '获取今日运势失败', data: null });
   }
 }
 

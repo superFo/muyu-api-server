@@ -2,6 +2,8 @@ import fetch from 'node-fetch';
 import jwt from 'jsonwebtoken';
 import { findByOpenId, createUser, updateUserInfo as updateUserInfoModel } from '../models/user.js';
 import { getUserSkins, getUserCurrentSkin, setUserCurrentSkin } from '../models/skin.js';
+import db from '../config/db.js';
+import dayjs from 'dayjs';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'muyu_secret_new_2024'; // 修改密钥强制重新登录
 const WECHAT_APPID = process.env.WECHAT_APPID || '';
@@ -170,4 +172,24 @@ export async function setUserCurrentSkinController(req, res) {
   }
   await setUserCurrentSkin(open_id, skin_id);
   res.json({ code: 0, data: null, message: '皮肤已切换' });
+}
+
+export async function setBirth(req, res, next) {
+  try {
+    const user = req.user;
+    const openId = user.open_id;
+    const { birthYear, birthMonth, birthDay } = req.body;
+    if (!birthYear || !birthMonth || !birthDay) {
+      return res.status(400).json({ code: 400, message: '请填写完整的出生年月日' });
+    }
+    // 查是否已填写
+    let [dbUser] = await db('users').where({ open_id: openId }).select('birth_year', 'birth_month', 'birth_day');
+    if (dbUser && dbUser.birth_year && dbUser.birth_month && dbUser.birth_day) {
+      return res.status(400).json({ code: 400, message: '生日已填写，无法修改' });
+    }
+    await db('users').where({ open_id: openId }).update({ birth_year: birthYear, birth_month: birthMonth, birth_day: birthDay });
+    res.json({ code: 0, message: '生日保存成功' });
+  } catch (err) {
+    res.status(500).json({ code: 500, message: '保存生日失败' });
+  }
 } 
