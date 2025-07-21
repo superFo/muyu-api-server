@@ -10,7 +10,11 @@ export async function today(req, res, next) {
     // 1. 查缓存表
     let [cache] = await db('fortune_cache').where({ open_id: openId, date: todayStr }).select('fortune_json');
     if (cache && cache.fortune_json) {
-      return res.json(JSON.parse(cache.fortune_json));
+      // 兼容 MySQL JSON 字段返回对象或字符串
+      const data = typeof cache.fortune_json === 'string'
+        ? JSON.parse(cache.fortune_json)
+        : cache.fortune_json;
+      return res.json(data);
     }
     // 2. 查用户生日
     let [dbUser] = await db('users').where({ open_id: openId }).select('birth_year', 'birth_month', 'birth_day');
