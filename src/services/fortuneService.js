@@ -6,7 +6,7 @@ const API_KEY = 'sk-00da9fb7ba0a4fc1bbc5feab85e171f7';
 // 调用大模型获取今日运势
 export async function todayFortune(user) {
   try {
-    const prompt = `请为用户生成今日运势，内容包括：综合分数、爱情分数、财富分数、事业分数、学习分数、幸运色、幸运数字、幸运食物、建议、避免事项、星象信息。要求内容简洁、积极、娱乐化，返回结构化JSON。`;
+    const prompt = `请为用户生成今日运势，内容包括：综合分数、爱情分数、财富分数、事业分数、学习分数、幸运色、幸运数字、幸运食物、建议、避免事项（如无可写“无特别需要避免事项”）、星象信息（如无可写“今日星象平稳”）。要求内容简洁、积极、娱乐化，返回结构化JSON。`;
     console.log('[fortuneService.todayFortune] user:', user, 'prompt:', prompt);
     const response = await axios.post(
       BAILIAN_API_URL,
@@ -41,7 +41,7 @@ export async function todayFortune(user) {
 // 调用大模型进行AI占卜
 export async function askFortune(user, question) {
   try {
-    const prompt = `你是一个娱乐化的AI占卜师，请用简洁、积极的语气回答用户的问题，内容仅供娱乐。用户提问：${question}`;
+    const prompt = `你是一个娱乐化的AI占卜师，请用简洁、积极的语气回答用户的问题，内容仅供娱乐。禁止输出任何色情、政治、暴力、违法、敏感、攻击性、歧视性等相关内容，如遇此类问题请委婉拒绝并提示用户更换提问。用户提问：${question}`;
     console.log('[fortuneService.askFortune] user:', user, 'prompt:', prompt);
     const response = await axios.post(
       BAILIAN_API_URL,

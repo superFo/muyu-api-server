@@ -6,5 +6,7 @@ CREATE TABLE IF NOT EXISTS users (
   phone VARCHAR(20),
   role ENUM('user','admin','ops') DEFAULT 'user',
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  fortune_ask_count INT DEFAULT 3,
+  fortune_ask_date DATE DEFAULT NULL,
   INDEX idx_open_id (open_id)
 ) ENGINE=InnoDB; 

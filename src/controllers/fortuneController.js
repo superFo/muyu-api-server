@@ -1,9 +1,7 @@
 import { todayFortune, askFortune } from '../services/fortuneService.js';
+import db from '../config/db.js';
+import dayjs from 'dayjs';
 
-// 内存版每日提问次数统计
-const askCountMap = new Map(); // key: userId, value: { date: 'YYYY-MM-DD', count: number }
-
-// 获取今日运势
 export async function today(req, res, next) {
   try {
     const user = req.user;
@@ -17,34 +15,51 @@ export async function today(req, res, next) {
   }
 }
 
-// AI占卜提问
 export async function ask(req, res, next) {
   try {
     const user = req.user;
-    const userId = user.id || user.open_id;
-    const today = new Date().toISOString().slice(0, 10);
-    let record = askCountMap.get(userId);
-    if (!record || record.date !== today) {
-      record = { date: today, count: 0 };
+    const openId = user.open_id;
+    const todayStr = dayjs().format('YYYY-MM-DD');
+    // 查询用户当前次数和日期
+    let [dbUser] = await db('users').where({ open_id: openId }).select('fortune_ask_count', 'fortune_ask_date');
+    let count = dbUser?.fortune_ask_count ?? 3;
+    let lastDate = dbUser?.fortune_ask_date;
+    // 如果不是今天，重置为3
+    if (lastDate !== todayStr) {
+      count = 3;
+      await db('users').where({ open_id: openId }).update({ fortune_ask_count: 3, fortune_ask_date: todayStr });
     }
-    if (record.count >= 3) {
-      console.warn('[fortune/ask] 超过提问次数:', userId, record);
-      return res.status(400).json({ code: 400, message: '今日提问次数已用完，每日最多3次', data: null });
+    if (count <= 0) {
+      return res.status(400).json({ code: 400, message: '今日AI占卜次数已用完', leftTimes: 0 });
     }
     const { question } = req.body;
     if (!question || typeof question !== 'string') {
-      console.warn('[fortune/ask] 问题为空:', req.body);
-      return res.status(400).json({ code: 400, message: '问题不能为空', data: null });
+      return res.status(400).json({ code: 400, message: '问题不能为空', leftTimes: count });
     }
-    console.log('[fortune/ask] user:', user, 'question:', question);
+    // 扣减次数
+    await db('users').where({ open_id: openId }).update({ fortune_ask_count: count - 1 });
     const data = await askFortune(user, question);
-    record.count += 1;
-    askCountMap.set(userId, record);
-    console.log('[fortune/ask] success:', data);
-    res.json({ ...data });
+    res.json({ ...data, leftTimes: count - 1 });
   } catch (err) {
     console.error('[fortune/ask] error:', err);
-    // 返回标准json，不返回html
     res.status(500).json({ code: 500, message: err.message || 'AI占卜失败', data: null });
+  }
+}
+
+export async function askCount(req, res, next) {
+  try {
+    const user = req.user;
+    const openId = user.open_id;
+    const todayStr = dayjs().format('YYYY-MM-DD');
+    let [dbUser] = await db('users').where({ open_id: openId }).select('fortune_ask_count', 'fortune_ask_date');
+    let count = dbUser?.fortune_ask_count ?? 3;
+    let lastDate = dbUser?.fortune_ask_date;
+    if (lastDate !== todayStr) {
+      count = 3;
+      await db('users').where({ open_id: openId }).update({ fortune_ask_count: 3, fortune_ask_date: todayStr });
+    }
+    res.json({ code: 0, leftTimes: count });
+  } catch (err) {
+    res.status(500).json({ code: 500, message: '获取剩余次数失败', leftTimes: 0 });
   }
 } 
