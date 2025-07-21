@@ -179,17 +179,21 @@ export async function setBirth(req, res, next) {
     const user = req.user;
     const openId = user.open_id;
     const { birthYear, birthMonth, birthDay } = req.body;
+    console.log('[setBirth] 请求参数:', { openId, birthYear, birthMonth, birthDay });
     if (!birthYear || !birthMonth || !birthDay) {
       return res.status(400).json({ code: 400, message: '请填写完整的出生年月日' });
     }
     // 查是否已填写
     let [dbUser] = await db('users').where({ open_id: openId }).select('birth_year', 'birth_month', 'birth_day');
+    console.log('[setBirth] 当前用户数据库记录:', dbUser);
     if (dbUser && dbUser.birth_year && dbUser.birth_month && dbUser.birth_day) {
       return res.status(400).json({ code: 400, message: '生日已填写，无法修改' });
     }
-    await db('users').where({ open_id: openId }).update({ birth_year: birthYear, birth_month: birthMonth, birth_day: birthDay });
+    const result = await db('users').where({ open_id: openId }).update({ birth_year: birthYear, birth_month: birthMonth, birth_day: birthDay });
+    console.log('[setBirth] update影响行数:', result);
     res.json({ code: 0, message: '生日保存成功' });
   } catch (err) {
+    console.error('[setBirth] 异常:', err);
     res.status(500).json({ code: 500, message: '保存生日失败' });
   }
 } 
