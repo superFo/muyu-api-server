@@ -62,7 +62,7 @@ export async function askFortune(user, question) {
     const text = response.data?.output?.text || '';
     return { answer: text };
   } catch (err) {
-    console.error('[fortuneService.askFortune] error:', err);
+    console.error('[fortuneService.askFortune] error:', err, err?.response?.data);
     throw new Error('AI占卜失败，请稍后重试');
   }
 } 

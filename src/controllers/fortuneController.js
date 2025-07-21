@@ -41,9 +41,10 @@ export async function ask(req, res, next) {
     record.count += 1;
     askCountMap.set(userId, record);
     console.log('[fortune/ask] success:', data);
-    res.json({ code: 0, data, message: 'success' });
+    res.json({ ...data });
   } catch (err) {
     console.error('[fortune/ask] error:', err);
-    next(err);
+    // 返回标准json，不返回html
+    res.status(500).json({ code: 500, message: err.message || 'AI占卜失败', data: null });
   }
 } 
