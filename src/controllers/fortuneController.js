@@ -14,7 +14,7 @@ export async function today(req, res, next) {
       const data = typeof cache.fortune_json === 'string'
         ? JSON.parse(cache.fortune_json)
         : cache.fortune_json;
-      return res.json(data);
+      return res.json({ code: 0, data, message: 'success' });
     }
     // 2. 查用户生日
     let [dbUser] = await db('users').where({ open_id: openId }).select('birth_year', 'birth_month', 'birth_day');
@@ -29,7 +29,7 @@ export async function today(req, res, next) {
       // 未填写生日，随机生成但不写入缓存
       fortune = await todayFortune({ ...user, random: true });
     }
-    res.json(fortune);
+    res.json({ code: 0, data: fortune, message: 'success' });
   } catch (err) {
     console.error('[fortune/today] error:', err);
     res.status(500).json({ code: 500, message: err.message || '获取今日运势失败', data: null });
