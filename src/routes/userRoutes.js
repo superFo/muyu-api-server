@@ -11,6 +11,6 @@ router.post('/queryByCode', queryByCode);
 // 新增皮肤相关接口
 router.get('/skins', auth, getUserSkinsController);
 router.post('/skin', auth, setUserCurrentSkinController);
-router.post('/birth', setBirth);
+router.post('/birth', auth, setBirth);
 
 export default router; 
