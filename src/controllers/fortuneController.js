@@ -1,21 +1,21 @@
-const fortuneService = require('../services/fortuneService');
+import { todayFortune, askFortune } from '../services/fortuneService.js';
 
 // 内存版每日提问次数统计
 const askCountMap = new Map(); // key: userId, value: { date: 'YYYY-MM-DD', count: number }
 
 // 获取今日运势
-exports.today = async (req, res, next) => {
+export async function today(req, res, next) {
   try {
     const user = req.user;
-    const data = await fortuneService.todayFortune(user);
+    const data = await todayFortune(user);
     res.json({ code: 0, data, message: 'success' });
   } catch (err) {
     next(err);
   }
-};
+}
 
 // AI占卜提问
-exports.ask = async (req, res, next) => {
+export async function ask(req, res, next) {
   try {
     const user = req.user;
     const userId = user.id || user.open_id;
@@ -31,11 +31,11 @@ exports.ask = async (req, res, next) => {
     if (!question || typeof question !== 'string') {
       return res.status(400).json({ code: 400, message: '问题不能为空', data: null });
     }
-    const data = await fortuneService.askFortune(user, question);
+    const data = await askFortune(user, question);
     record.count += 1;
     askCountMap.set(userId, record);
     res.json({ code: 0, data, message: 'success' });
   } catch (err) {
     next(err);
   }
-}; 
+} 

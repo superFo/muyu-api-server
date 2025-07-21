@@ -6,7 +6,7 @@ import recordRoutes from './routes/recordRoutes.js';
 import rankingRoutes from './routes/rankingRoutes.js';
 import statsRoutes from './routes/statsRoutes.js';
 import musicRoutes from './routes/musicRoutes.js';
-const fortuneRoutes = require('./routes/fortuneRoutes');
+import fortuneRoutes from './routes/fortuneRoutes.js';
 
 const app = express();
 app.use(express.json());

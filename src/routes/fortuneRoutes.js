@@ -1,12 +1,9 @@
-const express = require('express');
+import express from 'express';
+import auth from '../middlewares/auth.js';
+import { today, ask } from '../controllers/fortuneController.js';
+
 const router = express.Router();
-const auth = require('../middlewares/auth');
-const fortuneController = require('../controllers/fortuneController');
+router.get('/today', auth, today);
+router.post('/ask', auth, ask);
 
-// 获取今日运势
-router.get('/today', auth, fortuneController.today);
-
-// AI占卜提问
-router.post('/ask', auth, fortuneController.ask);
-
-module.exports = router; 
+export default router; 
