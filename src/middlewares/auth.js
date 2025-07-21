@@ -2,7 +2,7 @@ import jwt from 'jsonwebtoken';
 const JWT_SECRET = process.env.JWT_SECRET || 'muyu_secret_new_2024';
 
 export default function (req, res, next) {
-  const auth = req.headers.authorization;
+  const auth = req.headers['authorization'] || req.headers['Authorization'];
   if (!auth || !auth.startsWith('Bearer ')) {
     return res.status(401).json({ code: 401, data: null, message: '未登录' });
   }
