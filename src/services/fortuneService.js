@@ -62,7 +62,13 @@ export async function askFortune(user, question) {
     const text = response.data?.output?.text || '';
     return { answer: text };
   } catch (err) {
-    console.error('[fortuneService.askFortune] error:', err, err?.response?.data);
-    throw new Error('AI占卜失败，请稍后重试');
+    // 增强日志
+    console.error('[fortuneService.askFortune] error:', err);
+    if (err && err.response) {
+      console.error('[fortuneService.askFortune] err.response:', err.response);
+      console.error('[fortuneService.askFortune] err.response.data:', err.response.data);
+    }
+    console.error('[fortuneService.askFortune] err.toString():', err.toString());
+    throw new Error(err?.response?.data?.message || err.message || 'AI占卜失败，请稍后重试');
   }
 } 
