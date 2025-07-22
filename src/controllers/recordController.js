@@ -24,11 +24,11 @@ export async function createRecord(req, res) {
     // 2% 掉落水晶木鱼（id=2），8% 掉落七彩木鱼（id=1）
     const rand = Math.random();
     let targetSkinId = null;
-    if (rand < 0.2) {
-      // 2% 概率
+    if (rand < 0.0005) {
+      // 0.05% 概率
       targetSkinId = 2;
     } else {
-      // 8% 概率
+      // 99.95% 概率
       targetSkinId = 1;
     }
     const skin = hiddenSkins.find(s => s.id === targetSkinId);
