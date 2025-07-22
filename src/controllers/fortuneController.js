@@ -62,7 +62,7 @@ export async function ask(req, res, next) {
     if (!question || typeof question !== 'string') {
       return res.status(400).json({ code: 400, message: '问题不能为空', leftTimes: count });
     }
-    // 先扣减次数
+    // 先扣减次数的情况
     await db('users').where({ open_id: openId }).update({ fortune_ask_count: count - 1 });
     const data = await askFortune(user, question);
     res.json({ ...data }); // 不再返回leftTimes，由前端维护
