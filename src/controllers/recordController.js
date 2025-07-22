@@ -16,12 +16,23 @@ export async function createRecord(req, res) {
   // 皮肤掉落逻辑
   let skinDrop = null;
   console.log('[皮肤掉落] 开始判定');
-  if (Math.random() < 0.1) { // 10%概率
-    const allSkins = await getAllSkins();
-    const hiddenSkins = allSkins.filter(s => s.is_hidden);
-    console.log('[皮肤掉落] 隐藏皮肤列表:', hiddenSkins);
-    if (hiddenSkins.length > 0) {
-      const skin = hiddenSkins[Math.floor(Math.random() * hiddenSkins.length)];
+  const allSkins = await getAllSkins();
+  // 只考虑隐藏皮肤
+  const hiddenSkins = allSkins.filter(s => s.is_hidden);
+  // 先判定是否掉落（10%）
+  if (Math.random() < 0.10 && hiddenSkins.length > 0) {
+    // 2% 掉落水晶木鱼（id=2），8% 掉落七彩木鱼（id=1）
+    const rand = Math.random();
+    let targetSkinId = null;
+    if (rand < 0.2) {
+      // 2% 概率
+      targetSkinId = 2;
+    } else {
+      // 8% 概率
+      targetSkinId = 1;
+    }
+    const skin = hiddenSkins.find(s => s.id === targetSkinId);
+    if (skin) {
       const userSkinIds = await getUserSkinIds(open_id);
       console.log('[皮肤掉落] 用户已有皮肤ID:', userSkinIds, '本次掉落皮肤ID:', skin.id);
       if (!userSkinIds.includes(skin.id)) {
