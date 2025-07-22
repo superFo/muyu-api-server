@@ -53,7 +53,7 @@ export async function ask(req, res, next) {
       await db('users').where({ open_id: openId }).update({ fortune_ask_count: 6, fortune_ask_date: todayStr });
     }
     if (count <= 0) {
-      return res.status(400).json({ code: 400, message: '今日AI占卜次数已用完', leftTimes: 0 });
+      return res.status(400).json({ code: 400, message: '今日占卜次数已用完', leftTimes: 0 });
     }
     const { question } = req.body;
     if (!question || typeof question !== 'string') {
@@ -65,7 +65,7 @@ export async function ask(req, res, next) {
     res.json({ ...data }); // 不再返回leftTimes，由前端维护
   } catch (err) {
     console.error('[fortune/ask] error:', err);
-    res.status(500).json({ code: 500, message: err.message || 'AI占卜失败', data: null });
+    res.status(500).json({ code: 500, message: err.message || '占卜失败', data: null });
   }
 }
 
