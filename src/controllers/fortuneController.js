@@ -41,13 +41,14 @@ export async function ask(req, res, next) {
     const user = req.user;
     const openId = user.open_id;
     const todayStr = dayjs().format('YYYY-MM-DD');
-    // 查询用户当前次数和日期
     let [dbUser] = await db('users').where({ open_id: openId }).select('fortune_ask_count', 'fortune_ask_date');
     let count = dbUser?.fortune_ask_count ?? 6;
     let lastDate = dbUser?.fortune_ask_date;
+    console.log('[ask] openId:', openId, 'dbUser:', dbUser, 'todayStr:', todayStr, 'lastDate:', lastDate);
     if (lastDate !== todayStr) {
       count = 6;
       await db('users').where({ open_id: openId }).update({ fortune_ask_count: 6, fortune_ask_date: todayStr });
+      console.log('[ask] 重置次数:', openId, 'fortune_ask_count=6, fortune_ask_date=', todayStr);
     }
     if (count <= 0) {
       return res.status(400).json({ code: 400, message: '今日AI占卜次数已用完', leftTimes: 0 });
@@ -74,9 +75,11 @@ export async function askCount(req, res, next) {
     let [dbUser] = await db('users').where({ open_id: openId }).select('fortune_ask_count', 'fortune_ask_date');
     let count = dbUser?.fortune_ask_count ?? 6;
     let lastDate = dbUser?.fortune_ask_date;
+    console.log('[askCount] openId:', openId, 'dbUser:', dbUser, 'todayStr:', todayStr, 'lastDate:', lastDate);
     if (lastDate !== todayStr) {
       count = 6;
       await db('users').where({ open_id: openId }).update({ fortune_ask_count: 6, fortune_ask_date: todayStr });
+      console.log('[askCount] 重置次数:', openId, 'fortune_ask_count=6, fortune_ask_date=', todayStr);
     }
     res.json({ code: 0, leftTimes: count });
   } catch (err) {
