@@ -1,6 +1,10 @@
 import { todayFortune, askFortune } from '../services/fortuneService.js';
 import db from '../config/db.js';
 import dayjs from 'dayjs';
+import utc from 'dayjs/plugin/utc';
+import timezone from 'dayjs/plugin/timezone';
+dayjs.extend(utc);
+dayjs.extend(timezone);
 
 export async function today(req, res, next) {
   try {
@@ -40,12 +44,13 @@ export async function ask(req, res, next) {
   try {
     const user = req.user;
     const openId = user.open_id;
-    const todayStr = dayjs().format('YYYY-MM-DD');
+    const todayStr = dayjs().tz('Asia/Shanghai').format('YYYY-MM-DD');
     let [dbUser] = await db('users').where({ open_id: openId }).select('fortune_ask_count', 'fortune_ask_date');
     let count = dbUser?.fortune_ask_count ?? 6;
     let lastDate = dbUser?.fortune_ask_date;
-    console.log('[ask] openId:', openId, 'dbUser:', dbUser, 'todayStr:', todayStr, 'lastDate:', lastDate);
-    if (lastDate !== todayStr) {
+    let lastDateStr = lastDate ? dayjs(lastDate).tz('Asia/Shanghai').format('YYYY-MM-DD') : null;
+    console.log('[ask] openId:', openId, 'dbUser:', dbUser, 'todayStr:', todayStr, 'lastDate:', lastDate, 'lastDateStr:', lastDateStr);
+    if (lastDateStr !== todayStr) {
       count = 6;
       await db('users').where({ open_id: openId }).update({ fortune_ask_count: 6, fortune_ask_date: todayStr });
       console.log('[ask] 重置次数:', openId, 'fortune_ask_count=6, fortune_ask_date=', todayStr);
@@ -71,12 +76,13 @@ export async function askCount(req, res, next) {
   try {
     const user = req.user;
     const openId = user.open_id;
-    const todayStr = dayjs().format('YYYY-MM-DD');
+    const todayStr = dayjs().tz('Asia/Shanghai').format('YYYY-MM-DD');
     let [dbUser] = await db('users').where({ open_id: openId }).select('fortune_ask_count', 'fortune_ask_date');
     let count = dbUser?.fortune_ask_count ?? 6;
     let lastDate = dbUser?.fortune_ask_date;
-    console.log('[askCount] openId:', openId, 'dbUser:', dbUser, 'todayStr:', todayStr, 'lastDate:', lastDate);
-    if (lastDate !== todayStr) {
+    let lastDateStr = lastDate ? dayjs(lastDate).tz('Asia/Shanghai').format('YYYY-MM-DD') : null;
+    console.log('[askCount] openId:', openId, 'dbUser:', dbUser, 'todayStr:', todayStr, 'lastDate:', lastDate, 'lastDateStr:', lastDateStr);
+    if (lastDateStr !== todayStr) {
       count = 6;
       await db('users').where({ open_id: openId }).update({ fortune_ask_count: 6, fortune_ask_date: todayStr });
       console.log('[askCount] 重置次数:', openId, 'fortune_ask_count=6, fortune_ask_date=', todayStr);
