@@ -3,10 +3,23 @@ import axios from 'axios';
 const BAILIAN_API_URL = 'https://dashscope.aliyuncs.com/api/v1/services/aigc/text-generation/generation';
 const API_KEY = 'sk-00da9fb7ba0a4fc1bbc5feab85e171f7';
 
-// 调用大模型获取今日运势
+// 调用大模型获取今日灵感
 export async function todayFortune(user) {
   try {
-    const prompt = `请为用户生成今日运势，内容包括：综合分数、爱情分数、财富分数、事业分数、学习分数、幸运色、幸运数字、幸运食物、建议、避免事项（如无可写“无特别需要避免事项”）、星象信息（如无可写“今日星象平稳”）。要求内容简洁、积极、娱乐化，返回结构化JSON。`;
+    const prompt = `请为用户生成今日灵感，内容包括：
+- 综合分数（comprehensive_score）
+- 爱情分数（love_score）
+- 财富分数（wealth_score）
+- 事业分数（career_score）
+- 学习分数（study_score）
+- 幸运色（lucky_color）
+- 幸运数字（lucky_number）
+- 幸运食物（lucky_food）
+- 建议（advice）
+- 避免事项（avoid），如无可写“无特别需要避免事项”
+- 今日小贴士（tips），如无可写“今日平稳，适合日常活动和规划”
+请严格以如下结构化JSON返回，所有字段都必须有，即使为空也要给默认值：
+{"comprehensive_score":85,"love_score":90,"wealth_score":75,"career_score":80,"study_score":85,"lucky_color":"蓝色","lucky_number":7,"lucky_food":"巧克力","advice":"建议内容","avoid":"避免内容","tips":"今日小贴士"}`;
     console.log('[fortuneService.todayFortune] user:', user, 'prompt:', prompt);
     const response = await axios.post(
       BAILIAN_API_URL,
@@ -28,6 +41,9 @@ export async function todayFortune(user) {
     let data;
     try {
       data = JSON.parse(text);
+      // 字段兼容处理
+      data.avoid = data.avoid || data['避免事项'] || data['避免'] || '无特别需要避免事项';
+      data.tips = data.tips || data['小贴士信息'] || data['小贴士'] || data['今日小贴士'] || data['象信息'] || '今日平稳，适合日常活动和规划';
     } catch {
       data = { raw: text };
     }
@@ -38,10 +54,10 @@ export async function todayFortune(user) {
   }
 }
 
-// 调用大模型进行占卜
+// 调用大模型进行解答
 export async function askFortune(user, question) {
   try {
-    const prompt = `你是一个娱乐化的占卜师，请用简洁、积极的语气回答用户的问题，内容仅供娱乐。禁止输出任何色情、政治、暴力、违法、敏感、攻击性、歧视性等相关内容，如遇此类问题请委婉拒绝并提示用户更换提问。\n【重要】你的回复内容中不得出现“AI”“人工智能”“机器人”等字样，也不能自称AI或机器人，只能以“占卜师”自称。用户提问：${question}`;
+    const prompt = `你是一个娱乐化的解答助手，请用简洁、积极的语气回答用户的问题，内容仅供娱乐。禁止输出任何色情、政治、暴力、违法、敏感、攻击性、歧视性等相关内容，如遇此类问题请委婉拒绝并提示用户更换提问。\n【重要】你的回复内容中不得出现“AI”“人工智能”“机器人”等字样，也不能自称AI或机器人，只能以“解答助手”自称。用户提问：${question}`;
     console.log('[fortuneService.askFortune] user:', user, 'prompt:', prompt);
     const response = await axios.post(
       BAILIAN_API_URL,

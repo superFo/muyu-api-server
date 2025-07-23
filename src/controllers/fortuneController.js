@@ -22,7 +22,7 @@ export async function today(req, res, next) {
     // 2. 查用户生日
     let [dbUser] = await db('users').where({ open_id: openId }).select('birth_year', 'birth_month', 'birth_day');
     let hasBirth = dbUser && dbUser.birth_year && dbUser.birth_month && dbUser.birth_day;
-    // 3. 生成运势
+    // 3. 生成今日灵感
     let fortune;
     if (hasBirth) {
       fortune = await todayFortune({ ...user, birth_year: dbUser.birth_year, birth_month: dbUser.birth_month, birth_day: dbUser.birth_day });
@@ -35,7 +35,7 @@ export async function today(req, res, next) {
     res.json({ code: 0, data: fortune, message: 'success' });
   } catch (err) {
     console.error('[fortune/today] error:', err);
-    res.status(500).json({ code: 500, message: err.message || '获取今日运势失败', data: null });
+    res.status(500).json({ code: 500, message: err.message || '获取今日灵感失败', data: null });
   }
 }
 
@@ -53,7 +53,7 @@ export async function ask(req, res, next) {
       await db('users').where({ open_id: openId }).update({ fortune_ask_count: 6, fortune_ask_date: todayStr });
     }
     if (count <= 0) {
-      return res.status(400).json({ code: 400, message: '今日占卜次数已用完', leftTimes: 0 });
+      return res.status(400).json({ code: 400, message: '今日解答次数已用完', leftTimes: 0 });
     }
     const { question } = req.body;
     if (!question || typeof question !== 'string') {
@@ -65,7 +65,7 @@ export async function ask(req, res, next) {
     res.json({ ...data }); // 不再返回leftTimes，由前端维护
   } catch (err) {
     console.error('[fortune/ask] error:', err);
-    res.status(500).json({ code: 500, message: err.message || '占卜失败', data: null });
+    res.status(500).json({ code: 500, message: err.message || '解答失败', data: null });
   }
 }
 
