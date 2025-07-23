@@ -7,19 +7,18 @@ const API_KEY = 'sk-00da9fb7ba0a4fc1bbc5feab85e171f7';
 export async function todayFortune(user) {
   try {
     const prompt = `请为用户生成今日灵感，内容包括：
-- 综合分数（comprehensive_score）
-- 爱情分数（love_score）
-- 财富分数（wealth_score）
-- 事业分数（career_score）
-- 学习分数（study_score）
+- 综合分数（comprehensive_score）：请根据整体内容合理生成，范围60~100，分布自然，不要每次都接近85。
+- 爱情分数（love_score）：60~100
+- 财富分数（wealth_score）：60~100
+- 事业分数（career_score）：60~100
+- 学习分数（study_score）：60~100
 - 幸运色（lucky_color）
 - 幸运数字（lucky_number）
 - 幸运食物（lucky_food）
 - 建议（advice）
 - 避免事项（avoid），如无可写“无特别需要避免事项”
 - 今日小贴士（tips），如无可写“今日平稳，适合日常活动和规划”
-请严格以如下结构化JSON返回，所有字段都必须有，即使为空也要给默认值：
-{"comprehensive_score":85,"love_score":90,"wealth_score":75,"career_score":80,"study_score":85,"lucky_color":"蓝色","lucky_number":7,"lucky_food":"巧克力","advice":"建议内容","avoid":"避免内容","tips":"今日小贴士"}`;
+请严格以结构化JSON返回，所有字段都必须有，即使为空也要给默认值。`;
     console.log('[fortuneService.todayFortune] user:', user, 'prompt:', prompt);
     const response = await axios.post(
       BAILIAN_API_URL,
