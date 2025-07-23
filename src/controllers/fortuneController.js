@@ -50,13 +50,6 @@ const reviewReplies = [
 // ====== END 审核期间AI问答绕过方案 ======
 
 export async function ask(req, res, next) {
-  // ====== 审核期间AI问答绕过方案（审核通过后请移除本段，恢复大模型问答） ======
-  const reply = reviewReplies[reviewReplyIndex % reviewReplies.length];
-  reviewReplyIndex++;
-  return res.json({ answer: reply });
-  // ====== END 审核期间AI问答绕过方案 ======
-  /*
-  // ====== 审核通过后恢复大模型问答逻辑 ======
   try {
     const user = req.user;
     const openId = user.open_id;
@@ -78,14 +71,14 @@ export async function ask(req, res, next) {
     }
     // 先扣减次数的情况
     await db('users').where({ open_id: openId }).update({ fortune_ask_count: count - 1 });
-    const data = await askFortune(user, question);
+    // 新 prompt
+    const customPrompt = `你现在是『灵儿』，一个善解人意、温暖贴心的倾听者，专注于帮助用户表达内心情感、疏解心理压力和烦恼。你只允许围绕用户的个人情绪、感受、心理状态、人际关系、情感困惑、自我成长、心灵疗愈、星座运势、命理占卜等相关话题进行回答。当用户询问与个人情绪、心理、情感、人际关系、自我认知、人生抉择、星座运势、运势占卜等相关的问题时，你需耐心、温柔且富有同理心地倾听并给予积极、温暖、支持性的回答。如果用户的问题涉及心理疏导，你应提供鼓励和宽慰，尽量以积极的方式引导用户正确面对。对于用户的星座运势和命理占卜问题，你应给出具体、清晰、有启发性的回答，帮助用户理清思绪、提升心情。特别注意：当用户提出与主题无关的问题（例如：地点导航、代码编写、技术支持、娱乐八卦、无关知识等），你要温柔且礼貌地拒绝回答，并引导用户回到与情绪和心灵相关的话题，比如：“灵儿只懂得倾听你的心事哦，我们还是聊聊你的心情和感受吧。”永远保持耐心、关怀和温暖的语气。请严格遵守以上规则与用户互动，确保对话始终围绕着用户的内心世界展开。`;
+    const data = await askFortune(user, question, customPrompt);
     res.json({ ...data }); // 不再返回leftTimes，由前端维护
   } catch (err) {
     console.error('[fortune/ask] error:', err);
     res.status(500).json({ code: 500, message: err.message || '解答失败', data: null });
   }
-  // ====== END 审核通过后恢复大模型问答逻辑 ======
-  */
 }
 
 export async function askCount(req, res, next) {
