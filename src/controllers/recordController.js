@@ -13,40 +13,9 @@ export async function createRecord(req, res) {
   const { timestamp, device, city, longitude, latitude } = req.body;
   const formattedTimestamp = formatDateToMySQL(timestamp);
   const result = await dbCreateRecord({ open_id, timestamp: formattedTimestamp, device, city, longitude, latitude });
-  // 皮肤掉落逻辑
-  let skinDrop = null;
-  console.log('[皮肤掉落] 开始判定');
-  const allSkins = await getAllSkins();
-  // 只考虑隐藏皮肤
-  const hiddenSkins = allSkins.filter(s => s.is_hidden);
-  // 先判定是否掉落（10%）
-  if (Math.random() < 0.10 && hiddenSkins.length > 0) {
-    // 2% 掉落水晶木鱼（id=2），8% 掉落七彩木鱼（id=1）
-    const rand = Math.random();
-    let targetSkinId = null;
-    if (rand < 0.005) {
-      // 0.5% 概率
-      targetSkinId = 2;
-    } else {
-      // 99.95% 概率
-      targetSkinId = 1;
-    }
-    const skin = hiddenSkins.find(s => s.id === targetSkinId);
-    if (skin) {
-      const userSkinIds = await getUserSkinIds(open_id);
-      console.log('[皮肤掉落] 用户已有皮肤ID:', userSkinIds, '本次掉落皮肤ID:', skin.id);
-      if (!userSkinIds.includes(skin.id)) {
-        await addUserSkin(open_id, skin.id);
-        skinDrop = skin;
-        console.log('[皮肤掉落] 掉落成功:', skin);
-      } else {
-        console.log('[皮肤掉落] 用户已拥有该皮肤');
-      }
-    }
-  }
-  console.log('[皮肤掉落] 最终skinDrop:', skinDrop);
+  // 移除皮肤掉落逻辑
   const recordId = Array.isArray(result) ? result[0] : null;
-  res.json({ code: 0, data: { recordId, skinDrop }, message: 'success' });
+  res.json({ code: 0, data: { recordId }, message: 'success' });
 }
 
 export async function getRecords(req, res) {
@@ -77,13 +46,13 @@ export async function batchCreateRecords(req, res) {
     let skinDrop = null;
     const allSkins = await getAllSkins();
     const hiddenSkins = allSkins.filter(s => s.is_hidden);
-    if (Math.random() < 0.10 && hiddenSkins.length > 0) {
+    if (Math.random() < 0.20 && hiddenSkins.length > 0) { // 总掉落概率20%
       const rand = Math.random();
       let targetSkinId = null;
-      if (rand < 0.005) {
+      if (rand < 0.10) { // 2%/20% = 10%  => 2% 实际概率
         targetSkinId = 2;
       } else {
-        targetSkinId = 1;
+        targetSkinId = 1; // 18% 实际概率
       }
       const skin = hiddenSkins.find(s => s.id === targetSkinId);
       if (skin) {
