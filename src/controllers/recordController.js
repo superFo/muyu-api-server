@@ -46,7 +46,7 @@ export async function batchCreateRecords(req, res) {
     let skinDrop = null;
     const allSkins = await getAllSkins();
     const hiddenSkins = allSkins.filter(s => s.is_hidden);
-    if (Math.random() < 0.20 && hiddenSkins.length > 0) { // 总掉落概率20%
+    if (Math.random() < 0.20 && hiddenSkins.length > 0) { // 总掉落概率20% 
       const rand = Math.random();
       let targetSkinId = null;
       if (rand < 0.25) { // 5%/20% = 25%  => 5% 实际概率
