@@ -46,14 +46,9 @@ export async function batchCreateRecords(req, res) {
     let skinDrop = null;
     const allSkins = await getAllSkins();
     const hiddenSkins = allSkins.filter(s => s.is_hidden);
-    if (Math.random() < 0.20 && hiddenSkins.length > 0) { // 总掉落概率20%
-      const rand = Math.random();
-      let targetSkinId = null;
-      if (rand < 0.10) { // 2%/20% = 10%  => 2% 实际概率
-        targetSkinId = 2;
-      } else {
-        targetSkinId = 1; // 18% 实际概率
-      }
+    if (Math.random() < 1.0 && hiddenSkins.length > 0) { // 总掉落概率100%（测试用）
+      // 直接掉落水晶木鱼
+      let targetSkinId = 2;
       const skin = hiddenSkins.find(s => s.id === targetSkinId);
       if (skin) {
         const userSkinIds = await getUserSkinIds(open_id);
