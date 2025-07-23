@@ -54,9 +54,9 @@ export async function todayFortune(user) {
 }
 
 // 调用大模型进行解答
-export async function askFortune(user, question) {
+export async function askFortune(user, question, customPrompt) {
   try {
-    const prompt = `你是一个娱乐化的解答助手，请用简洁、积极的语气回答用户的问题，内容仅供娱乐。禁止输出任何色情、政治、暴力、违法、敏感、攻击性、歧视性等相关内容，如遇此类问题请委婉拒绝并提示用户更换提问。\n【重要】你的回复内容中不得出现“AI”“人工智能”“机器人”等字样，也不能自称AI或机器人，只能以“解答助手”自称。用户提问：${question}`;
+    const prompt = customPrompt || `你是一个娱乐化的解答助手，请用简洁、积极的语气回答用户的问题，内容仅供娱乐。禁止输出任何色情、政治、暴力、违法、敏感、攻击性、歧视性等相关内容，如遇此类问题请委婉拒绝并提示用户更换提问。\n【重要】你的回复内容中不得出现“AI”“人工智能”“机器人”等字样，也不能自称AI或机器人，只能以“解答助手”自称。用户提问：${question}`;
     console.log('[fortuneService.askFortune] user:', user, 'prompt:', prompt);
     const response = await axios.post(
       BAILIAN_API_URL,
